@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualBasic.CompilerServices;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 
 namespace ConwaysGameOfLife
 {
@@ -16,11 +18,25 @@ namespace ConwaysGameOfLife
         public static bool operator ==(Coordinate a, Coordinate b) => a.Equals(b);
         public static bool operator !=(Coordinate a, Coordinate b) => !a.Equals(b);
 
-        public override bool Equals(object obj) => 
+        public override bool Equals(object obj) =>
             obj is Coordinate coordinate &&
                    X == coordinate.X &&
                    Y == coordinate.Y;
 
         public override int GetHashCode() => HashCode.Combine(X, Y);
+    }
+
+    public static class Ext
+    {
+        public static IEnumerable<Coordinate> Neighbors(this Coordinate c) => new Coordinate[] {
+            (c.X - 1, c.Y - 1),
+            (c.X, c.Y - 1),
+            (c.X + 1, c.Y - 1),
+            (c.X - 1, c.Y),
+            (c.X + 1, c.Y),
+            (c.X - 1, c.Y + 1),
+            (c.X, c.Y + 1),
+            (c.X + 1, c.Y + 1)
+        };
     }
 }
