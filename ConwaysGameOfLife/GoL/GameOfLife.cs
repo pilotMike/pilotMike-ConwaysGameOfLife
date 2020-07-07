@@ -6,11 +6,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace ConwaysGameOfLife
+namespace ConwaysGameOfLife.GoL
 {
-    public static class GameOfLife
+    public class GameOfLife : IGameOfLife
     {
-        public static void Step<TStepResult, TGrid>(TStepResult results, TGrid grid, Dictionary<Coordinate, bool> buffer) 
+        public void Step<TStepResult, TGrid>(TStepResult results, TGrid grid, Dictionary<Coordinate, bool> buffer)
             where TStepResult : IStepResult
             where TGrid : IConwayGrid
         {
@@ -21,34 +21,20 @@ namespace ConwaysGameOfLife
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void SetNeighbors<TStepResult, TGrid>(TStepResult results, TGrid grid, KeyValuePair<Coordinate, bool> kvp)
+        private void SetNeighbors<TStepResult, TGrid>(TStepResult results, TGrid grid, KeyValuePair<Coordinate, bool> kvp)
             where TStepResult : IStepResult
             where TGrid : IConwayGrid
         {
-            var (cell, cellState) = GetCellStatus(grid, kvp);
+
+            CellState<TGrid> logic = default;
+            var (cell, cellState) = logic.Get(grid, kvp);
 
             results.Set(cell, cellState);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static (Coordinate cell, bool cellState) GetCellStatus<TGrid>(TGrid grid, KeyValuePair<Coordinate, bool> kvp) 
-            where TGrid : IConwayGrid
-        {
-            var (cell, alive) = kvp;
-            var neighbors = Grid.NeighborCount(cell, grid);
+        
 
-            var cellState = neighbors switch
-            {
-                2 when alive => true,
-                3 => true,
-                _ => false
-            };
-
-            return (cell, cellState);
-        }
-
-        public static void Run<TGrid>(TGrid grid, Dictionary<Coordinate, bool> buffer,
+        public void Run<TGrid>(TGrid grid, Dictionary<Coordinate, bool> buffer,
             int? iterations = null)
             where TGrid : IConwayGrid
         {
@@ -67,7 +53,7 @@ namespace ConwaysGameOfLife
             }
         }
 
-        public static async Task RunAsync<TGrid>(int delayMillis, TGrid grid, Dictionary<Coordinate, bool> buffer,
+        public async Task RunAsync<TGrid>(int delayMillis, TGrid grid, Dictionary<Coordinate, bool> buffer,
             int? iterations = null)
             where TGrid : IConwayGrid
         {
@@ -92,9 +78,10 @@ namespace ConwaysGameOfLife
         /// <summary>
         /// Waaaaaaaay slower than serial
         /// </summary>
-        public static void RunParallel<TGrid>(TGrid grid, int? iterations = null)
+        public void RunParallel<TGrid>(TGrid grid, int? iterations = null)
             where TGrid : IConwayGrid
         {
+            CellState<TGrid> logic = default;
             var executedIterations = 0;
             var buffer = new Dictionary<Coordinate, bool>();
             while (grid.HasLiveCells())
@@ -105,8 +92,8 @@ namespace ConwaysGameOfLife
                 //    kvp => SetNeighbors(result, grid, kvp));
 
                 var newState = grid.ActiveCells(buffer).AsParallel()
-                   // .Distinct()
-                    .Select(kvp => GetCellStatus(grid, kvp));
+                    // .Distinct()
+                    .Select(kvp => logic.Get(grid, kvp));
                 //grid.Set(result.State);
                 grid.Set(newState);
 
@@ -117,11 +104,6 @@ namespace ConwaysGameOfLife
                     break;
             }
         }
-
-        private static ConcurrentStepResult RentResult() => ObjectPool<ConcurrentStepResult>.Rent(() => new ConcurrentStepResult());
-
-        private static readonly Func<ConcurrentDictionary<Coordinate, bool>> RentFunc = () =>
-            ObjectPool<ConcurrentDictionary<Coordinate, bool>>.Rent(() => new ConcurrentDictionary<Coordinate, bool>());
 
         public class StepResult : IStepResult
         {

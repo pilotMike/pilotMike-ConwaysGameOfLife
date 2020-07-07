@@ -1,4 +1,6 @@
-﻿using ConwaysGameOfLife.Grids;
+﻿using ConwaysGameOfLife.GoL;
+using ConwaysGameOfLife.Grids;
+using ConwaysGameOfLife.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +24,16 @@ namespace ConwaysGameOfLife
             var state = GetInitialState(dims, 10);
             const int iters = 1_000;
 
-            var cg = new ConsoleGrid(dims, state);
+            //var cg = new ConsoleGrid(dims, state);
             //var hg = new HashGrid(new HashSet<Coordinate>(state), dims);
 
-            await GameOfLife.RunAsync(200, cg, new Dictionary<Coordinate, bool>(), iters);
+            //var gol = new GameOfLife();
+            //await gol.RunAsync(200, cg, new Dictionary<Coordinate, bool>(), iters);
+
+            var pgol = new ParallelGameOfLife();
+            pgol.Run<ParallelHashGrid, ConsoleView>(new ParallelHashGrid(state), 
+                new GameOfLifeOptions { DelayMillis = 200, MaxIterations = iters, Dimensions = dims });
+
 
             //Console.WriteLine("starting parallel");
             //RunTest(state, dims, iters);
@@ -42,12 +50,6 @@ namespace ConwaysGameOfLife
             var state = InitialStates.Glider.Select(c => (Coordinate)(c.X + 10, c.Y + 10)).ToList(); //GetInitialState(70);
             var gol = new EventBasedGameOfLife();
             gol.Run(state, 70);
-        }
-
-        private static void RunTest(List<Coordinate> state, int dimensions, int iterations)
-        {
-            var hg = new HashGrid(new HashSet<Coordinate>(state), dimensions);
-            GameOfLife.RunParallel(hg, iterations);
         }
 
         private static List<Coordinate> GetInitialState(int dimensions, int fraction)

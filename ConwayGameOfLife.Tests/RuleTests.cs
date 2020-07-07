@@ -1,10 +1,11 @@
 using ConwaysGameOfLife;
+using ConwaysGameOfLife.GoL;
 using ConwaysGameOfLife.Grids;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static ConwaysGameOfLife.GameOfLife;
+using static ConwaysGameOfLife.GoL.GameOfLife;
 
 namespace ConwayGameOfLife.Tests
 {
@@ -39,7 +40,7 @@ namespace ConwayGameOfLife.Tests
             var grid = new HashGrid(new HashSet<Coordinate>(state), 80);
 
             var res = new StepResult();
-            GameOfLife.Step(res, grid, new Dictionary<Coordinate, bool>());
+            new GameOfLife().Step(res, grid, new Dictionary<Coordinate, bool>());
 
             var alive = res.State.Values.Count(v => v);
 

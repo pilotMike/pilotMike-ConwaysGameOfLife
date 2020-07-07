@@ -1,5 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
+using ConwaysGameOfLife.GoL;
 using ConwaysGameOfLife.Grids;
+using ConwaysGameOfLife.Views;
 using Microsoft.Diagnostics.Tracing.Parsers.MicrosoftWindowsTCPIP;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ namespace ConwaysGameOfLife.Benchmark
     [MemoryDiagnoser]
     public class BenchmarkTest
     {
-        [Params(10, 100)]
+        [Params(50, 100)]
         public int Dimensions { get; set; }
         public int Iterations { get; set; } = 1000;
 
@@ -35,16 +37,17 @@ namespace ConwaysGameOfLife.Benchmark
         {
             var hs = new HashGrid(new HashSet<Coordinate>(_state), Dimensions);
             var buffer = new Dictionary<Coordinate, bool>(Dimensions);
-            GameOfLife.Run(hs, buffer, Iterations);
+            var gol = new GameOfLife();
+            gol.Run(hs, buffer, Iterations);
         }
 
-        // slooooow
-        //[Benchmark]
-        //public void HashSetParallelBenchmark()
-        //{
-        //    var hg = new HashGrid(new HashSet<Coordinate>(_state), Dimensions);
-        //    GameOfLife.RunParallel(hg, Iterations);
-        //}
+        [Benchmark]
+        public void Parallel()
+        {
+            var grid = new ParallelHashGrid(_state);
+            var gol = new ParallelGameOfLife();
+            gol.Run<ParallelHashGrid, NullView>(grid, new GameOfLifeOptions { MaxIterations = Iterations });
+        }
 
     }
 }
