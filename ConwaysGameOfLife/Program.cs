@@ -11,20 +11,21 @@ namespace ConwaysGameOfLife
     {
         static async Task Main(string[] args)
         {
-            //var consoleGrid = new ConsoleGrid(40);
-            //var initialState = InitialStates.Glider;
-            //consoleGrid.Center(initialState);
+            //    var consoleGrid = new ConsoleGrid(40);
+            //    var initialState = InitialStates.Glider;
+            //    consoleGrid.Center(initialState);
 
 
-            //await GameOfLife.RunAsync(100, consoleGrid, new Dictionary<Coordinate, bool>());
+            //    await GameOfLife.RunAsync(200, consoleGrid, new Dictionary<Coordinate, bool>());
 
-            //const int dims = 40;
-            //var state = GetInitialState(dims);
-            //const int iters = 1000;
+            const int dims = 40;
+            var state = GetInitialState(dims, 10);
+            const int iters = 1_000;
 
-            //var cg = new ConsoleGrid(dims, state);
+            var cg = new ConsoleGrid(dims, state);
+            //var hg = new HashGrid(new HashSet<Coordinate>(state), dims);
 
-            //await GameOfLife.RunAsync(0, cg, new Dictionary<Coordinate, bool>(), iters);
+            await GameOfLife.RunAsync(200, cg, new Dictionary<Coordinate, bool>(), iters);
 
             //Console.WriteLine("starting parallel");
             //RunTest(state, dims, iters);
@@ -32,13 +33,13 @@ namespace ConwaysGameOfLife
 
 
 
-            RunEventBased();
+            //RunEventBased();
         }
 
         public static void RunEventBased()
         {
             // there's no stopping this
-            var state = InitialStates.Glider.Select(c => (Coordinate)(c.X + 10, c.Y+10)).ToList(); //GetInitialState(70);
+            var state = InitialStates.Glider.Select(c => (Coordinate)(c.X + 10, c.Y + 10)).ToList(); //GetInitialState(70);
             var gol = new EventBasedGameOfLife();
             gol.Run(state, 70);
         }
@@ -49,9 +50,9 @@ namespace ConwaysGameOfLife
             GameOfLife.RunParallel(hg, iterations);
         }
 
-        private static List<Coordinate> GetInitialState(int dimensions)
+        private static List<Coordinate> GetInitialState(int dimensions, int fraction)
         {
-            var state = new List<Coordinate>(dimensions * dimensions / 3);
+            var state = new List<Coordinate>(dimensions * dimensions / fraction);
             var r = new Random();
             for (int i = 0; i < dimensions; i++)
                 for (int j = 0; j < dimensions; j++)

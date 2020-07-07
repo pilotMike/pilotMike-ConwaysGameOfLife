@@ -24,7 +24,10 @@ namespace ConwaysGameOfLife.Grids
 
             int count = 0;
             foreach (var cell in neighbors)
-                count += Convert.ToInt32(grid.HasLiveCell(cell));
+            {
+                bool hasCell = grid.HasLiveCell(cell);
+                count += hasCell ? 1 : 0;
+            }
 
             return count;
         }

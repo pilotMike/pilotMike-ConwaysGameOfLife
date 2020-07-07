@@ -46,11 +46,5 @@ namespace ConwaysGameOfLife.Benchmark
         //    GameOfLife.RunParallel(hg, Iterations);
         //}
 
-        [Benchmark]
-        public void UsingLists()
-        {
-            var lg = new ListGrid(Dimensions);
-            GameOfLife.Run(lg, )
-        }
     }
 }

@@ -71,7 +71,6 @@ namespace ConwaysGameOfLife
             int? iterations = null)
             where TGrid : IConwayGrid
         {
-            var delayTask = delayMillis > 0 ? Task.Delay(delayMillis) : Task.CompletedTask;
             var result = new StepResult();
             var executedIterations = 0;
             while (grid.HasLiveCells())
@@ -81,7 +80,8 @@ namespace ConwaysGameOfLife
 
                 result.Clear();
 
-                await delayTask.ConfigureAwait(false);
+                if (delayMillis > 0)
+                    await Task.Delay(delayMillis).ConfigureAwait(false);
 
                 executedIterations++;
                 if (iterations != null && executedIterations >= iterations)
