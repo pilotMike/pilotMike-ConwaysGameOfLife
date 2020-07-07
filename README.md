@@ -19,8 +19,7 @@ AMD Ryzen 5 3600, 1 CPU, 12 logical and 6 physical cores
 |         Parallel |        100 |   141.02 ms | 4.640 ms | 13.681 ms |  0.10 | 19750.0000 | 1000.0000 | 500.0000 | 150.54 MB |
 
 
-I suspect the higher memory usage on the hash set version is because it is not 'distincting' the neighbor cells, whereas the parallel version puts them into a concurrent dictionary before returning the active cells (active meaning any cell that is or is near a live cell and can therefore change).
 
-Also, the parallel version uses some inlined code via generics with constraints for struct/interface, though that shouldn't make any difference.
+The parallel version uses some inlined code via generics with constraints for struct/interface that the HashSet version does not, though that shouldn't make much difference.
 
 The original hash set benchmark tries to avoid allocations and reuses the same collections to hold the cells moreso than the parallel version, hence no Gen1 or Gen2 collections. The parallel version could probably be improved with some weirdness, such as passing in the concurrent hash set to be used for getting the ActiveCells rather than creating a new one inside of the method.
