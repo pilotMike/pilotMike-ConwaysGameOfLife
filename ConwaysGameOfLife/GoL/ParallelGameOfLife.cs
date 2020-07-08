@@ -11,7 +11,7 @@ namespace ConwaysGameOfLife.GoL
         public void Run<TConwayGrid, TView>(
             TConwayGrid grid, // todo: make this a regular interface. this way will do no good.
             GameOfLifeOptions options = null)
-            where TConwayGrid : ParallelHashGrid
+            where TConwayGrid : IParallelConwayGrid
             where TView : struct, IView
         {
             var maxIters = options?.MaxIterations;
@@ -40,7 +40,7 @@ namespace ConwaysGameOfLife.GoL
             int maxIters = 0, CancellationToken cancellationToken = default)
             where TIterCheck : struct, IIterCheck
             where TCancellationTokenCheck : struct, ICancellationTokenCheck
-            where TConwayGrid : ParallelHashGrid
+            where TConwayGrid : IParallelConwayGrid
             where TView : IView
         {
             TIterCheck iterCheck = default;

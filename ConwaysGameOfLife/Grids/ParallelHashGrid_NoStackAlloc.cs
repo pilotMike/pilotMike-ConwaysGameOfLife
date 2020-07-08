@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ConwaysGameOfLife.Grids
 {
-    public class ParallelHashGrid : IParallelConwayGrid
+    public class ParallelHashGrid_NoStackAlloc : IParallelConwayGrid
     {
         // assume this isn't written to in parallel.hahahahaha
         private readonly HashSet<Coordinate> _grid;
 
-        public ParallelHashGrid(IEnumerable<Coordinate> state)
+        public ParallelHashGrid_NoStackAlloc(IEnumerable<Coordinate> state)
         {
             _grid = new HashSet<Coordinate>(state);
         }
@@ -62,20 +60,16 @@ namespace ConwaysGameOfLife.Grids
 
                 // copied and modified from Grid.AddNeighbors
                 // to use the TryAdd method on the concurrent dictionary
-                Span<Coordinate> neighbors = stackalloc Coordinate[8]
-                {
-                    (c.X - 1, c.Y - 1),
-                    (c.X, c.Y - 1),
-                    (c.X + 1, c.Y - 1),
-                    (c.X - 1, c.Y),
-                    (c.X + 1, c.Y),
-                    (c.X - 1, c.Y + 1),
-                    (c.X, c.Y + 1),
-                    (c.X + 1, c.Y + 1)
-                };
 
-                foreach (var n in neighbors)
-                    distinctCells.TryAdd(n, false);
+                distinctCells.TryAdd((c.X - 1, c.Y - 1), false);
+                distinctCells.TryAdd((c.X, c.Y - 1), false);
+                distinctCells.TryAdd((c.X + 1, c.Y - 1), false);
+                distinctCells.TryAdd((c.X - 1, c.Y), false);
+                distinctCells.TryAdd((c.X + 1, c.Y), false);
+                distinctCells.TryAdd((c.X - 1, c.Y + 1), false);
+                distinctCells.TryAdd((c.X, c.Y + 1), false);
+                distinctCells.TryAdd((c.X + 1, c.Y + 1), false);
+
             });
             return distinctCells;
         }
