@@ -49,5 +49,20 @@ namespace ConwaysGameOfLife.Benchmark
             gol.Run<ParallelHashGrid, NullView>(grid, new GameOfLifeOptions { MaxIterations = Iterations });
         }
 
+        [Benchmark]
+        public void ParallelAggressiveOptimization()
+        {
+            var grid = new ParallelHashGrid(_state);
+            var gol = new AggressiveParallelGameOfLife();
+            gol.Run<ParallelHashGrid, NullView>(grid, new GameOfLifeOptions { MaxIterations = Iterations });
+        }
+
+        [Benchmark]
+        public void ParallelBuffered()
+        {
+            var grid = new BufferedParallelHashGrid(_state);
+            var gol = new ParallelGameOfLife_Buffered();
+            gol.Run<BufferedParallelHashGrid, NullView>(grid, new GameOfLifeOptions { MaxIterations = Iterations });
+        }
     }
 }
