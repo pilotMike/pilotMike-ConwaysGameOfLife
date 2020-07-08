@@ -27,4 +27,4 @@ The parallel version uses some inlined code via generics with constraints for st
 
 The original hash set benchmark tries to avoid allocations and reuses the same collections to hold the cells moreso than the parallel version, hence no Gen1 or Gen2 collections. The parallel version could probably be improved with some weirdness, such as passing in the concurrent hash set to be used for getting the ActiveCells rather than creating a new one inside of the method.
 
-Parallel After Buffering: didn't actually help. The Clear() method doesn't reset, it re-allocates. https://github.com/dotnet/runtime/blob/9f4d39a74a57f8e7a18d0d9068e3ccbf728e8715/src/libraries/System.Collections.Concurrent/src/System/Collections/Concurrent/ConcurrentDictionary.cs#L639.
+Parallel After Buffering: didn't actually help. The Clear() method doesn't reset, it re-allocates. It does, however, cut the Gen2 collections. https://github.com/dotnet/runtime/blob/9f4d39a74a57f8e7a18d0d9068e3ccbf728e8715/src/libraries/System.Collections.Concurrent/src/System/Collections/Concurrent/ConcurrentDictionary.cs#L639.
