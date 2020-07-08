@@ -1,17 +1,21 @@
 ﻿using ConwaysGameOfLife.Grids;
 using ConwaysGameOfLife.Views;
-using System.Linq;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ConwaysGameOfLife.GoL
 {
-    public class ParallelGameOfLife : IGameOfLife
+    public class ParallelGameOfLife_Buffered : IGameOfLife
     {
         public void Run<TConwayGrid, TView>(
             TConwayGrid grid, // todo: make this a regular interface. this way will do no good.
             GameOfLifeOptions options = null)
-            where TConwayGrid : ParallelHashGrid
+            where TConwayGrid : BufferedParallelHashGrid
             where TView : struct, IView
         {
             var maxIters = options?.MaxIterations;
@@ -19,7 +23,7 @@ namespace ConwaysGameOfLife.GoL
             TView view = default;
             if (options.Dimensions.HasValue)
                 view.Dimensions = options.Dimensions.Value;
-            
+
             // wanna see some weird shit to allow the compiler/jitter to inline?
             // let's hope it actually works lol
             if (maxIters.HasValue)
@@ -34,29 +38,31 @@ namespace ConwaysGameOfLife.GoL
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private void Loop<TIterCheck, TCancellationTokenCheck, TConwayGrid, TView>(
             TConwayGrid grid,
             TView view,
             int maxIters = 0, CancellationToken cancellationToken = default)
             where TIterCheck : struct, IIterCheck
             where TCancellationTokenCheck : struct, ICancellationTokenCheck
-            where TConwayGrid : ParallelHashGrid
+            where TConwayGrid : BufferedParallelHashGrid
             where TView : IView
         {
             TIterCheck iterCheck = default;
             TCancellationTokenCheck cancellationTokenCheck = default;
 
-            while (iterCheck.Run(maxIters) && 
+            var buffer = new ConcurrentDictionary<Coordinate, bool>();
+
+            while (iterCheck.Run(maxIters) &&
                 cancellationTokenCheck.Check(cancellationToken))
             {
-                var activeCells = grid.ActiveCellsParallel();
-                var output = activeCells.AsParallel()
-                    .Select(cell => CellState<TConwayGrid>.Get(grid, cell));
-                foreach (var c in output)
+                grid.ActiveCellsParallel(buffer);
+                Parallel.ForEach(buffer, cell =>
                 {
-                    grid.Set(c);
-                    view.Set(c);
-                }
+                    var cellState = CellState<TConwayGrid>.Get(grid, cell);
+                    grid.Set(cellState);
+                    view.Set(cellState);
+                });
             }
         }
 
@@ -74,7 +80,8 @@ namespace ConwaysGameOfLife.GoL
             public bool Run(int max) => true;
         }
 
-        private interface ICancellationTokenCheck {
+        private interface ICancellationTokenCheck
+        {
             bool Check(CancellationToken token);
         }
         private readonly struct CancellationTokenCheck : ICancellationTokenCheck

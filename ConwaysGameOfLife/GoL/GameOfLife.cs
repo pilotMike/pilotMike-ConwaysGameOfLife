@@ -26,8 +26,7 @@ namespace ConwaysGameOfLife.GoL
             where TGrid : IConwayGrid
         {
 
-            CellState<TGrid> logic = default;
-            var (cell, cellState) = logic.Get(grid, kvp);
+            var (cell, cellState) = CellState<TGrid>.Get(grid, kvp);
 
             results.Set(cell, cellState);
         }
@@ -68,36 +67,6 @@ namespace ConwaysGameOfLife.GoL
 
                 if (delayMillis > 0)
                     await Task.Delay(delayMillis).ConfigureAwait(false);
-
-                executedIterations++;
-                if (iterations != null && executedIterations >= iterations)
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Waaaaaaaay slower than serial
-        /// </summary>
-        public void RunParallel<TGrid>(TGrid grid, int? iterations = null)
-            where TGrid : IConwayGrid
-        {
-            CellState<TGrid> logic = default;
-            var executedIterations = 0;
-            var buffer = new Dictionary<Coordinate, bool>();
-            while (grid.HasLiveCells())
-            {
-                //var result = new ConcurrentStepResult();
-
-                //Parallel.ForEach(grid.ActiveCells(buffer), 
-                //    kvp => SetNeighbors(result, grid, kvp));
-
-                var newState = grid.ActiveCells(buffer).AsParallel()
-                    // .Distinct()
-                    .Select(kvp => logic.Get(grid, kvp));
-                //grid.Set(result.State);
-                grid.Set(newState);
-
-                //result.Clear();
 
                 executedIterations++;
                 if (iterations != null && executedIterations >= iterations)

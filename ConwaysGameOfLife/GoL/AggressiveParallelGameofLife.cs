@@ -1,12 +1,16 @@
 ﻿using ConwaysGameOfLife.Grids;
 using ConwaysGameOfLife.Views;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 
 namespace ConwaysGameOfLife.GoL
 {
-    public class ParallelGameOfLife : IGameOfLife
+    // copy pasta of the ParallelGameOfLife, but with the agressive optimization flag
+    public class AggressiveParallelGameOfLife : IGameOfLife
     {
         public void Run<TConwayGrid, TView>(
             TConwayGrid grid, // todo: make this a regular interface. this way will do no good.
@@ -19,7 +23,7 @@ namespace ConwaysGameOfLife.GoL
             TView view = default;
             if (options.Dimensions.HasValue)
                 view.Dimensions = options.Dimensions.Value;
-            
+
             // wanna see some weird shit to allow the compiler/jitter to inline?
             // let's hope it actually works lol
             if (maxIters.HasValue)
@@ -34,6 +38,7 @@ namespace ConwaysGameOfLife.GoL
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private void Loop<TIterCheck, TCancellationTokenCheck, TConwayGrid, TView>(
             TConwayGrid grid,
             TView view,
@@ -46,7 +51,7 @@ namespace ConwaysGameOfLife.GoL
             TIterCheck iterCheck = default;
             TCancellationTokenCheck cancellationTokenCheck = default;
 
-            while (iterCheck.Run(maxIters) && 
+            while (iterCheck.Run(maxIters) &&
                 cancellationTokenCheck.Check(cancellationToken))
             {
                 var activeCells = grid.ActiveCellsParallel();
@@ -74,7 +79,8 @@ namespace ConwaysGameOfLife.GoL
             public bool Run(int max) => true;
         }
 
-        private interface ICancellationTokenCheck {
+        private interface ICancellationTokenCheck
+        {
             bool Check(CancellationToken token);
         }
         private readonly struct CancellationTokenCheck : ICancellationTokenCheck

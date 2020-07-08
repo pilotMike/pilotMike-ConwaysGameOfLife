@@ -6,10 +6,10 @@ using System.Text;
 
 namespace ConwaysGameOfLife.GoL
 {
-    public readonly struct CellState<TGrid> where TGrid : IConwayGrid
+    public static class CellState<TGrid> where TGrid : IConwayGrid
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (Coordinate cell, bool cellState) Get(TGrid grid, KeyValuePair<Coordinate, bool> kvp)
+        public static (Coordinate cell, bool cellState) Get(TGrid grid, KeyValuePair<Coordinate, bool> kvp)
             
         {
             var (cell, alive) = kvp;

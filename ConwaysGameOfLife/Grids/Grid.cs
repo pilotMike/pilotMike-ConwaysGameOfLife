@@ -51,8 +51,7 @@ namespace ConwaysGameOfLife.Grids
 
             foreach (var n in neighbors)
             {
-                if (!original.Contains(n))
-                    buffer[n] = false;
+                buffer[n] = original.Contains(n);
             }
         }
     }

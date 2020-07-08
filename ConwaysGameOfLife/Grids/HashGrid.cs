@@ -27,8 +27,6 @@ namespace ConwaysGameOfLife.Grids
             return buffer;
         }
 
-        // no way to get rid of null checks
-
         public void Add(Coordinate c) => _hashSet.Add(c);
 
         public bool HasLiveCells() => _hashSet.Count > 0;

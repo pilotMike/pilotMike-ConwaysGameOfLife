@@ -3,20 +3,19 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ConwaysGameOfLife.Grids
 {
-    public class ParallelHashGrid : IConwayGrid
+    public class BufferedParallelHashGrid : IConwayGrid
     {
-        // assume this isn't written to in parallel.hahahahaha
-        private readonly HashSet<Coordinate> _grid;
+        // value is not actually needed
+        private readonly ConcurrentDictionary<Coordinate, bool> _grid;
 
-        public ParallelHashGrid(IEnumerable<Coordinate> state)
+        public BufferedParallelHashGrid(IEnumerable<Coordinate> state)
         {
-            _grid = new HashSet<Coordinate>(state);
+            _grid = new ConcurrentDictionary<Coordinate, bool>(state.Select(s => new KeyValuePair<Coordinate, bool>(s, true)));
         }
 
         public TDictionary ActiveCells<TDictionary>(TDictionary buffer) where TDictionary : IDictionary<Coordinate, bool>
@@ -24,15 +23,15 @@ namespace ConwaysGameOfLife.Grids
             throw new NotImplementedException();
         }
 
-        public bool HasLiveCell(Coordinate c) => _grid.Contains(c);
+        public bool HasLiveCell(Coordinate c) => _grid.ContainsKey(c);
 
         public bool HasLiveCells() => _grid.Count > 0;
 
         public void Set((Coordinate c, bool alive) cell)
         {
             if (cell.alive)
-                _grid.Add(cell.c);
-            else _grid.Remove(cell.c);
+                _grid.GetOrAdd(cell.c, true);
+            else _grid.Remove(cell.c, out var _);
         }
 
         public void Set<TEnumerable>(TEnumerable state) where TEnumerable : IEnumerable<(Coordinate c, bool alive)>
@@ -40,7 +39,7 @@ namespace ConwaysGameOfLife.Grids
             _grid.Clear();
             foreach (var (c, alive) in state)
                 if (alive)
-                    _grid.Add(c);
+                    _grid.GetOrAdd(c, true);
         }
 
         public void SetDictionary<TDictionary>(TDictionary state) where TDictionary : IDictionary<Coordinate, bool>
@@ -53,12 +52,13 @@ namespace ConwaysGameOfLife.Grids
         /// allocates a concurrent dictionary and a closure on each invocation
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-        public ConcurrentDictionary<Coordinate, bool> ActiveCellsParallel()
+        public void ActiveCellsParallel(ConcurrentDictionary<Coordinate, bool> buffer)
         {
-            var distinctCells = new ConcurrentDictionary<Coordinate, bool>();
-            Parallel.ForEach(_grid, c =>
+            buffer.Clear();
+            Parallel.ForEach(_grid, cell =>
             {
-                distinctCells.TryAdd(c, true);
+                var c = cell.Key;
+                buffer.TryAdd(c, true);
 
                 // copied and modified from Grid.AddNeighbors
                 // to use the TryAdd method on the concurrent dictionary
@@ -75,9 +75,8 @@ namespace ConwaysGameOfLife.Grids
                 };
 
                 foreach (var n in neighbors)
-                    distinctCells.TryAdd(n, false);
+                    buffer.TryAdd(n, false);
             });
-            return distinctCells;
         }
     }
 }

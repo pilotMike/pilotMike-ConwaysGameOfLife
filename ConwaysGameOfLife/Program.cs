@@ -25,14 +25,14 @@ namespace ConwaysGameOfLife
             const int iters = 1_000;
 
             //var cg = new ConsoleGrid(dims, state);
-            //var hg = new HashGrid(new HashSet<Coordinate>(state), dims);
+            ////var hg = new HashGrid(new HashSet<Coordinate>(state), dims);
 
             //var gol = new GameOfLife();
             //await gol.RunAsync(200, cg, new Dictionary<Coordinate, bool>(), iters);
 
             var pgol = new ParallelGameOfLife();
-            pgol.Run<ParallelHashGrid, ConsoleView>(new ParallelHashGrid(state), 
-                new GameOfLifeOptions { DelayMillis = 200, MaxIterations = iters, Dimensions = dims });
+            pgol.Run<ParallelHashGrid, ConsoleView>(new ParallelHashGrid(state),
+                new GameOfLifeOptions { /*DelayMillis = 200,*/ MaxIterations = iters, Dimensions = dims });
 
 
             //Console.WriteLine("starting parallel");
