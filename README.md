@@ -10,17 +10,17 @@ AMD Ryzen 5 3600, 1 CPU, 12 logical and 6 physical cores
   DefaultJob : .NET Core 3.1.4 (CoreCLR 4.700.20.20201, CoreFX 4.700.20.22101), X64 RyuJIT
 
 
-|           Method | Dimensions |        Mean |    Error |    StdDev | Ratio |      Gen 0 |     Gen 1 |    Gen 2 | Allocated |
-|----------------- |----------- |------------:|---------:|----------:|------:|-----------:|----------:|---------:|----------:|
-| HashSetBenchmark |         50 |   380.52 ms | 0.456 ms |  0.381 ms |  1.00 |  7000.0000 |         - |        - |  62.29 MB |
-|         Parallel |         50 |    57.59 ms | 1.515 ms |  4.466 ms |  0.15 | 15800.0000 | 3100.0000 |        - | 119.35 MB |
-|         Parallel After Buffering |         50 |   110.2 ms |  5.35 ms | 15.68 ms |  0.33 |    0.03 | 16800.0000 |  800.0000 |        - | 127.17 MB |
-| Parallel Aggressive Optimization (separate run, new random input)  |         50 |    57.60 ms | 1.582 ms |  4.638 ms |  0.16 |    0.02 | 15700.0000 |  100.0000 |        - | 119.07 MB |
-|                  |            |             |          |           |       |            |           |          |           |
-| HashSetBenchmark |        100 | 1,318.67 ms | 1.331 ms |  1.180 ms |  1.00 | 27000.0000 |         - |        - | 224.02 MB |
-|         Parallel |        100 |   141.02 ms | 4.640 ms | 13.681 ms |  0.10 | 19750.0000 | 1000.0000 | 500.0000 | 150.54 MB |
-|         Parallel After Buffering |        100 |   313.3 ms | 13.23 ms | 39.00 ms |  0.23 |    0.03 | 27000.0000 | 1333.3333 | 666.6667 | 198.08 MB |
-|         Parallel Aggressive Optimization (separate run, new random input) |        100 |   139.12 ms | 4.414 ms | 12.877 ms |  0.11 |    0.01 | 23250.0000 | 1000.0000 | 500.0000 | 177.01 MB |
+|                         Method | Dimensions |        Mean |     Error |     StdDev | Ratio | RatioSD |      Gen 0 |     Gen 1 |    Gen 2 | Allocated |
+|------------------------------- |----------- |------------:|----------:|-----------:|------:|--------:|-----------:|----------:|---------:|----------:|
+|               HashSetBenchmark |         50 |   774.19 ms |  0.590 ms |   0.552 ms |  1.00 |    0.00 | 18000.0000 |         - |        - | 144.54 MB |
+|                       Parallel |         50 |    56.72 ms |  1.704 ms |   4.971 ms |  0.07 |    0.01 | 15375.0000 | 3250.0000 |        - | 116.59 MB |
+| ParallelAggressiveOptimization |         50 |    59.52 ms |  2.010 ms |   5.925 ms |  0.08 |    0.01 | 15500.0000 | 1750.0000 |        - |  117.6 MB |
+|               ParallelBuffered |         50 |   288.47 ms | 18.837 ms |  55.540 ms |  0.30 |    0.04 | 24666.6667 | 4000.0000 | 333.3333 | 176.51 MB |
+|                                |            |             |           |            |       |         |            |           |          |           |
+|               HashSetBenchmark |        100 | 1,341.09 ms |  1.506 ms |   1.335 ms |  1.00 |    0.00 | 34000.0000 |         - |        - | 274.07 MB |
+|                       Parallel |        100 |   142.61 ms |  3.622 ms |  10.622 ms |  0.10 |    0.01 | 21800.0000 | 1800.0000 | 800.0000 | 165.66 MB |
+| ParallelAggressiveOptimization |        100 |   140.93 ms |  5.288 ms |  15.593 ms |  0.11 |    0.01 | 19000.0000 | 1333.3333 | 666.6667 | 147.11 MB |
+|               ParallelBuffered |        100 |   731.46 ms | 53.146 ms | 156.702 ms |  0.43 |    0.05 | 43000.0000 | 1000.0000 |        - | 313.93 MB |
 
 
 The parallel version uses some inlined code via generics with constraints for struct/interface that the HashSet version does not, though that shouldn't make much difference.
