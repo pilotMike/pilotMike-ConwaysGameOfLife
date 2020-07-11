@@ -33,6 +33,31 @@ namespace ConwaysGameOfLife.Grids
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int NeighborCount(Coordinate c, bool[,] memory) 
+        {
+            Span<Coordinate> neighbors = stackalloc Coordinate[8]
+            {
+                (c.X - 1, c.Y - 1),
+                (c.X, c.Y - 1),
+                (c.X + 1, c.Y - 1),
+                (c.X - 1, c.Y),
+                (c.X + 1, c.Y),
+                (c.X - 1, c.Y + 1),
+                (c.X, c.Y + 1),
+                (c.X + 1, c.Y + 1)
+            };
+
+            int count = 0;
+            foreach (var cell in neighbors)
+            {
+                bool hasCell = memory[c.Y, c.X];
+                count += hasCell ? 1 : 0;
+            }
+
+            return count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void AddNeighbors<TDictionary>(TDictionary buffer,
             HashSet<Coordinate> original, Coordinate c)
             where TDictionary : IDictionary<Coordinate, bool>

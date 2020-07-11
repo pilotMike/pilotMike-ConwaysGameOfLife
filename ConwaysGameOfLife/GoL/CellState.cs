@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace ConwaysGameOfLife.GoL
@@ -23,6 +24,23 @@ namespace ConwaysGameOfLife.GoL
             };
 
             return (cell, cellState);
+        }
+    }
+
+    public static class CellState
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public static bool IsAlive(bool[,] memory, Coordinate c)
+        {
+            var neighbors = Grid.NeighborCount(c, memory);
+            var cellState = neighbors switch
+            {
+                2 when memory[c.Y, c.X] => true,
+                3 => true,
+                _ => false
+            };
+
+            return  cellState;
         }
     }
 }
