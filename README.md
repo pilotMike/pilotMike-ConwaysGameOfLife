@@ -2,7 +2,7 @@
 Playing around with different implementations of Conways Game of Life
 
 # Benchmarks
-#### 1,000 iterations, relase mode, optimize checked, allow unsafe (two methods for stack allocating an arry to check for neighbors)
+#### 1,000 iterations, release mode, optimize checked, allow unsafe (two methods for stack allocating an arry to check for neighbors)
 BenchmarkDotNet=v0.12.1, OS=Windows 10.0.18363.900 (1909/November2018Update/19H2)
 AMD Ryzen 5 3600, 1 CPU, 12 logical and 6 physical cores
 .NET Core SDK=3.1.300
